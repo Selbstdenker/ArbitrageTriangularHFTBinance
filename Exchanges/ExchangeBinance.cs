@@ -222,7 +222,7 @@ public class ExchangeBinance
     {
         try
         {
-            String json = Http.get("https://exchange.bitrecife.com.br/api/v3/public/getorderbook?market=BTC_BRL&type=SELL&depth=2000");
+            String json = Http.get("https://api.binance.com/api/v1/depth");
             JContainer jCointaner = (JContainer)JsonConvert.DeserializeObject(json, (typeof(JContainer)));
 
             decimal[] arrayValue = new decimal[2];
