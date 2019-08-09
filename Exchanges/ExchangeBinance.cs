@@ -545,7 +545,7 @@ public class ExchangeBinance
         amount = Math.Round(amount / getQuantity(pair)) * getQuantity(pair);
         amount = Math.Round(amount, getQuotePrecision(pair));
 
-        decimal amount_fix = Math.Truncate(amount * 10000)/10000; 
+        decimal amount_fix = Math.Truncate(amount * 1000)/1000; 
 
         //if (decrease)        
         //    for (int i = 0; i < 10; i++)            
@@ -564,20 +564,20 @@ public class ExchangeBinance
             //amount -= getQuantity(pair);
             //amount -= getQuantity(pair);            
             amount -= getQuantity(pair);
-            amount_fix = Math.Truncate(amount * 10000) / 10000;
+            amount_fix = Math.Truncate(amount * 1000) / 1000;
             ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
             countTry++;
-            if (countTry > 900)
-            {
-                amount = getBalances(pair);
-                amount = Math.Round(amount / getQuantity(pair)) * getQuantity(pair);
-                amount = Math.Round(amount, getQuotePrecision(pair));
-                amount -= getQuantity(pair);
-                amount = Math.Round(amount, getQuotePrecision(pair));
-                amount_fix = Math.Truncate(amount * 1000) / 1000;
-                ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
-                return ret;
-            }
+            //if (countTry > 900)
+            //{
+            //    amount = getBalances(pair);
+            //    amount = Math.Round(amount / getQuantity(pair)) * getQuantity(pair);
+            //    amount = Math.Round(amount, getQuotePrecision(pair));
+            //    amount -= getQuantity(pair);
+            //    amount = Math.Round(amount, getQuotePrecision(pair));
+            //    amount_fix = Math.Truncate(amount * 1000) / 1000;
+            //    ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
+            //    return ret;
+            //}
         }
         return ret;
     }
