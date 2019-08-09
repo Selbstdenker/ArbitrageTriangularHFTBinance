@@ -545,6 +545,8 @@ public class ExchangeBinance
         amount = Math.Round(amount / getQuantity(pair)) * getQuantity(pair);
         amount = Math.Round(amount, getQuotePrecision(pair));
 
+        decimal amount_fix = Math.Truncate(amount * 10000)/10000; 
+
         //if (decrease)        
         //    for (int i = 0; i < 10; i++)            
         //        amount -= getQuantity(pair);                        
@@ -556,13 +558,14 @@ public class ExchangeBinance
         
 
         int countTry = 0;
-        string ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);        
+        string ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
         while (ret.IndexOf("insufficient balance") >= 0 || ret.IndexOf("many new orders") >= 0 || ret.IndexOf("LOT_SIZE") >= 0)
         {
             //amount -= getQuantity(pair);
             //amount -= getQuantity(pair);            
-                amount -= getQuantity(pair);            
-            ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
+            amount -= getQuantity(pair);
+            amount_fix = Math.Truncate(amount * 10000) / 10000;
+            ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
             countTry++;
             if (countTry > 900)
             {
@@ -571,7 +574,8 @@ public class ExchangeBinance
                 amount = Math.Round(amount, getQuotePrecision(pair));
                 amount -= getQuantity(pair);
                 amount = Math.Round(amount, getQuotePrecision(pair));
-                ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
+                amount_fix = Math.Truncate(amount * 1000) / 1000;
+                ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
                 return ret;
             }
         }
