@@ -567,17 +567,17 @@ public class ExchangeBinance
             amount_fix = Math.Truncate(amount * 1000) / 1000;
             ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
             countTry++;
-            //if (countTry > 900)
-            //{
-            //    amount = getBalances(pair);
-            //    amount = Math.Round(amount / getQuantity(pair)) * getQuantity(pair);
-            //    amount = Math.Round(amount, getQuotePrecision(pair));
-            //    amount -= getQuantity(pair);
-            //    amount = Math.Round(amount, getQuotePrecision(pair));
-            //    amount_fix = Math.Truncate(amount * 1000) / 1000;
-            //    ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
-            //    return ret;
-            //}
+            if (countTry > 100)
+            {
+                amount = getBalances(pair);
+                amount = Math.Round(amount / getQuantity(pair)) * getQuantity(pair);
+                amount = Math.Round(amount, getQuotePrecision(pair));
+                amount -= getQuantity(pair);
+                amount = Math.Round(amount, getQuotePrecision(pair));
+                amount_fix = Math.Truncate(amount * 1000) / 1000;
+                ret = post("https://api.binance.com/api/v3/order", "symbol=" + pair.ToUpper() + "&side=" + type.ToUpper() + "&type=MARKET&quantity=" + amount_fix.ToString().Replace(",", ".") + "&timestamp=" + Utils.GenerateTimeStamp(DateTime.Now.ToUniversalTime()), Key.key, Key.secret, Method.POST);
+                return ret;
+            }
         }
         return ret;
     }

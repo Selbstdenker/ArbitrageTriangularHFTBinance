@@ -401,6 +401,12 @@ class Program
     /// Função principal de loop
     /// </summary>
     /// <param name="obj"></param>
+    private static Random _random = new Random();
+    private static ConsoleColor GetRandomConsoleColor()
+    {
+        var consoleColors = Enum.GetValues(typeof(ConsoleColor));
+        return (ConsoleColor)consoleColors.GetValue(_random.Next(consoleColors.Length));
+    }
     static void triangularBinanceDetail(object obj)
     {
         Logger.log("START " + obj.ToString());
@@ -423,160 +429,85 @@ class Program
                 }
                 if (ret.perc > percValue)
                 {
-                    Console.BackgroundColor = ConsoleColor.Blue; 
+                    Console.BackgroundColor = GetRandomConsoleColor();
                     Console.WriteLine(" -- -- BAITING THE FISH!! -- -- ");
                     lock (objLockOrders)
                     {
-                        string jason = "";
+                        bool t1 = false, t2 = false, t3 = false;
                         if (pairs[2] == "ETHBTC" || pairs[2] == "BNBBTC")
-                        {
-                            jason = exchangeBinance.orderMarket("buy", pairs[0], ret.amount1, false, true);
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine(jason.IndexOf("FILLED"));
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine(jason);
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-
-                            if (jason.IndexOf("FILLED") >= 0)
+                        {                          
+                            new Thread(() =>
                             {
-                                Console.WriteLine("|| -- -- FIRST ACT COMPLETE!!! -- -- >>");
-                                jason = exchangeBinance.orderMarket("sell", pairs[1], ret.amount1, false, true);
-                                if (jason.IndexOf("FILLED") >= 0)
-                                {
-                                    Console.WriteLine("|| -- -- SECOND ACT COMPLETE!!! -- -- >>");
-                                    jason = exchangeBinance.orderMarket("sell", pairs[2], ret.amount2);
-                                    if (jason.IndexOf("FILLED") >= 0)
-                                    {
-                                        String obs = pairs[2].Replace("BTC", "") + " | " + ret.perc + Environment.NewLine +
+                                exchangeBinance.orderMarket("buy", pairs[0], ret.amount1, false, true);
+                            }).Start();
+                            Thread t = new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("sell", pairs[1], ret.amount1, false, true);
+                            });
+                            t.Start();
+                            new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("sell", pairs[2], ret.amount2);
+                            }).Start();
+
+                            t1 = true; t2 = true; t3 = true;
+                        }
+                        else if (pairs[2] == "BTCUSDT" || pairs[2] == "BTCPAX")
+                        {
+                            new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("buy", pairs[0], ret.amount1, false, true);
+                                t1 = true;
+                            }).Start();
+                            new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("sell", pairs[1], ret.amount2, true);
+                                t2 = true;
+                            }).Start();
+                            new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("buy", pairs[2], ret.amount2, true);
+                                t3 = true;
+                            }).Start();
+                        }
+                        else
+                        {
+                            new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("buy", pairs[0], ret.amount1, false, true);
+                            }).Start();
+                            Thread t = new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("buy", pairs[1], ret.amount2);
+                            });
+                            t.Start();
+                            Thread at = new Thread(() =>
+                            {
+                                exchangeBinance.orderMarket("sell", pairs[2], ret.amount2);
+                            });
+                            at.Start();
+
+                            t1 = true; t2 = true; t3 = true;
+                        }
+                        bool wait = true;
+                        while (wait)
+                        {
+                            if (t1)
+                                if (t2)
+                                    if (t3)
+                                        wait = false;
+                            System.Threading.Thread.Sleep(500);
+                        }
+                        String obs = pairs[2].Replace("BTC", "") + " | " + ret.perc + Environment.NewLine +
                                         "Buy " + pairs[0] + "  " + ret.amount1 + "  " + Environment.NewLine +
                                         " Change " + pairs[1] + "  " + ret.amount2 + " " + Environment.NewLine +
                                         " Sell " + pairs[2] + "  " + ret.amount2 + Environment.NewLine +
                                         " Initial " + initialValue + "  Final " + ret.finalvalue + " perc  " + Math.Round(ret.perc, 8) + Environment.NewLine;
 
-                                        Logger.triangle(obs);
-                                        Console.WriteLine("<< -- -- FISHING COMPLETE!!! -- -- ||");
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("|| -- -- FINAL FISHING FAIL!!! -- -- >>");
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("|| -- -- SECOND ACT FAIL!!! -- -- >>");
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine("|| -- -- FIRST ACT FAIL!!! -- -- \\");
-                                break;
-                            }
-                        }
-                        else if (pairs[2] == "BTCUSDT" || pairs[2] == "BTCPAX")
-                        {
-                            jason = exchangeBinance.orderMarket("buy", pairs[0], ret.amount1, false, true);
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine(jason.IndexOf("FILLED"));
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine(jason);
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            if (jason.IndexOf("FILLED") >= 0)
-                                {
-                                    Console.WriteLine("|| -- -- FIRST ACT COMPLETE!!! -- -- >>");
-                                    Console.WriteLine(jason.IndexOf("FILLED"));
-                                jason = exchangeBinance.orderMarket("sell", pairs[1], ret.amount1, false, true);
-                                    if (jason.IndexOf("FILLED") >= 0)
-                                    {
-                                        Console.WriteLine("|| -- -- SECOND ACT COMPLETE!!! -- -- >>");
-                                    jason = exchangeBinance.orderMarket("sell", pairs[2], ret.amount2);
-                                        if (jason.IndexOf("FILLED") >= 0)
-                                        {
-                                            String obs = pairs[2].Replace("BTC", "") + " | " + ret.perc + Environment.NewLine +
-                                            "Buy " + pairs[0] + "  " + ret.amount1 + "  " + Environment.NewLine +
-                                            " Change " + pairs[1] + "  " + ret.amount2 + " " + Environment.NewLine +
-                                            " Sell " + pairs[2] + "  " + ret.amount2 + Environment.NewLine +
-                                            " Initial " + initialValue + "  Final " + ret.finalvalue + " perc  " + Math.Round(ret.perc, 8) + Environment.NewLine;
+                        Logger.triangle(obs);
 
-                                            Logger.triangle(obs);
-                                            Console.WriteLine("<< -- -- FISHING COMPLETE!!! -- -- ||");
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("|| -- -- FINAL FISHING FAIL!!! -- -- >>");
-                                            break;
-                                    }
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("|| -- -- SECOND ACT FAIL!!! -- -- >>");
-                                        break;
-                                }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("|| -- -- FIRST ACT FAIL!!! -- -- \\");
-                                    break;
-                            }
-                            
-                        }
-                        else
-                        {
-                            jason = exchangeBinance.orderMarket("buy", pairs[0], ret.amount1, false, true);
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine(jason.IndexOf("FILLED"));
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine(jason);
-                            Console.WriteLine("                --------------------");
-                            Console.WriteLine("                --------------------");
-                            if (jason.IndexOf("FILLED") >= 0)
-                                {
-                                    Console.WriteLine("|| -- -- FIRST ACT COMPLETE!!! -- -- >>");
-                                    Console.WriteLine(jason.IndexOf("FILLED"));
-                                jason = exchangeBinance.orderMarket("sell", pairs[1], ret.amount1, false, true);
-                                    if (jason.IndexOf("FILLED") >= 0)
-                                    {
-                                        Console.WriteLine("|| -- -- SECOND ACT COMPLETE!!! -- -- >>");
-                                    jason = exchangeBinance.orderMarket("sell", pairs[2], ret.amount2);
-                                        if (jason.IndexOf("FILLED") >= 0)
-                                        {
-                                            String obs = pairs[2].Replace("BTC", "") + " | " + ret.perc + Environment.NewLine +
-                                            "Buy " + pairs[0] + "  " + ret.amount1 + "  " + Environment.NewLine +
-                                            " Change " + pairs[1] + "  " + ret.amount2 + " " + Environment.NewLine +
-                                            " Sell " + pairs[2] + "  " + ret.amount2 + Environment.NewLine +
-                                            " Initial " + initialValue + "  Final " + ret.finalvalue + " perc  " + Math.Round(ret.perc, 8) + Environment.NewLine;
-
-                                            Logger.triangle(obs);
-                                            Console.WriteLine("<< -- -- FISHING COMPLETE!!! -- -- ||");
-                                        }
-                                        else
-                                        {
-                                            Console.WriteLine("|| -- -- FINAL FISHING FAIL!!! -- -- >>");
-                                            break;
-                                    }
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("|| -- -- SECOND ACT FAIL!!! -- -- >>");
-                                        break;
-                                }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("|| -- -- FIRST ACT FAIL!!! -- -- \\");
-                                    break; 
-                                }
-                            
-                        }
+                        for (int i = 0; i < 50; i++)
+                            System.Threading.Thread.Sleep(500);
                     }
                 }
             }
