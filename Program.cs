@@ -496,7 +496,6 @@ class Program
                                 if (t2)
                                     if (t3)
                                         wait = false;
-                            System.Threading.Thread.Sleep(500);
                         }
                         String obs = pairs[2].Replace("BTC", "") + " | " + ret.perc + Environment.NewLine +
                                         "Buy " + pairs[0] + "  " + ret.amount1 + "  " + Environment.NewLine +
@@ -505,15 +504,12 @@ class Program
                                         " Initial " + initialValue + "  Final " + ret.finalvalue + " perc  " + Math.Round(ret.perc, 8) + Environment.NewLine;
 
                         Logger.triangle(obs);
-
-                        for (int i = 0; i < 50; i++)
-                            System.Threading.Thread.Sleep(500);
                     }
                 }
             }
             catch (Exception ex)
             {
-                System.Threading.Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(1);
                 //Logger.log(ex.Message + ex.StackTrace + "||" + obj.ToString());
             }           
         }
